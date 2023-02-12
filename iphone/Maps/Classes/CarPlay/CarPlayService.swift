@@ -354,6 +354,27 @@ extension CarPlayService: CPMapTemplateDelegate {
     FrameworkHelper.moveMap(offset)
   }
 
+  func mapTemplateDidBeginPanGesture(_ mapTemplate: CPMapTemplate) {
+    FrameworkHelper.stopLocationFollow()
+  }
+
+  func mapTemplate(_ mapTemplate: CPMapTemplate, didUpdatePanGestureWithTranslation translation: CGPoint, velocity: CGPoint) {
+    LOG(.info, "pan gesture updated with translation \(translation) and velocity \(velocity)")
+    let offsetStep: CGFloat = 0.005
+    let offset = UIOffset(horizontal: translation.x * offsetStep, vertical: -translation.y * offsetStep)
+    // todo: investigate how to apply 'velocity' to the map movement
+    FrameworkHelper.moveMap(offset)
+  }
+
+  func mapTemplate(_ mapTemplate: CPMapTemplate, didEndPanGestureWithVelocity velocity: CGPoint) {
+    LOG(.info, "pan gesture ended with velocity \(velocity)")
+    
+    // todo: animate end velocity to create natural gesture feeling
+
+    // todo: perform switch after some delay
+    FrameworkHelper.switchMyPositionMode()
+  }
+
   func mapTemplate(_ mapTemplate: CPMapTemplate, startedTrip trip: CPTrip, using routeChoice: CPRouteChoice) {
     guard let info = routeChoice.userInfo as? RouteInfo else {
       if let info = routeChoice.userInfo as? [String: Any],
